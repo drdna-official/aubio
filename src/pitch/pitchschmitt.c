@@ -39,6 +39,10 @@ aubio_pitchschmitt_t *
 new_aubio_pitchschmitt (uint_t size)
 {
   aubio_pitchschmitt_t *p = AUBIO_NEW (aubio_pitchschmitt_t);
+  
+  if (!p) {
+    return NULL;
+  }
   p->blockSize = size;
   p->schmittBuffer = AUBIO_ARRAY (signed short int, p->blockSize);
   p->buf = AUBIO_ARRAY (signed short int, p->blockSize);
@@ -90,7 +94,7 @@ aubio_schmittS16LE (aubio_pitchschmitt_t * p, uint_t nframes,
       startpoint = j;
       schmittTriggered = 0;
       endpoint = startpoint + 1;
-      for (j = startpoint, tc = 0; j < blockSize; j++) {
+      for (j = startpoint, tc = 0; j < blockSize - 1; j++) {
         if (!schmittTriggered) {
           schmittTriggered = (schmittBuffer[j] >= t1);
         } else if (schmittBuffer[j] >= t2 && schmittBuffer[j + 1] < t2) {

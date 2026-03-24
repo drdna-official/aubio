@@ -18,7 +18,12 @@
 
 */
 
+#define _GNU_SOURCE
 #include "aubio_priv.h"
+
+#ifdef HAVE_WIN_HACKS
+#include <strings.h>
+#endif
 
 #ifdef HAVE_WIN_HACKS
 #define strncasecmp _strnicmp
@@ -28,10 +33,13 @@ const char_t *aubio_str_get_extension(const char_t *filename)
 {
   // find last occurence of dot character
   const char_t *ext;
-  if (!filename) return NULL;
+  if (!filename)
+    return NULL;
   ext = strrchr(filename, '.');
-  if (!ext || ext == filename) return "";
-  else return ext + 1;
+  if (!ext || ext == filename)
+    return "";
+  else
+    return ext + 1;
 }
 
 uint_t aubio_str_extension_matches(const char_t *ext, const char_t *pattern)
@@ -40,7 +48,7 @@ uint_t aubio_str_extension_matches(const char_t *ext, const char_t *pattern)
 }
 
 uint_t aubio_str_path_has_extension(const char_t *filename,
-    const char_t *pattern)
+                                    const char_t *pattern)
 {
   const char_t *ext = aubio_str_get_extension(filename);
   return aubio_str_extension_matches(ext, pattern);
