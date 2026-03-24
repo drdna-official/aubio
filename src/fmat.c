@@ -28,11 +28,28 @@ fmat_t * new_fmat (uint_t height, uint_t length) {
     return NULL;
   }
   s = AUBIO_NEW(fmat_t);
+  if (!s) {
+    return NULL;
+  }
   s->height = height;
   s->length = length;
   s->data = AUBIO_ARRAY(smpl_t*,s->height);
+  if (!s->data) {
+    AUBIO_FREE(s);
+    return NULL;
+  }
   for (i=0; i< s->height; i++) {
     s->data[i] = AUBIO_ARRAY(smpl_t, s->length);
+    if (!s->data[i]) {
+      /* cleanup previously allocated rows */
+      while (i > 0) {
+        i--;
+        AUBIO_FREE(s->data[i]);
+      }
+      AUBIO_FREE(s->data);
+      AUBIO_FREE(s);
+      return NULL;
+    }
     for (j=0; j< s->length; j++) {
       s->data[i][j]=0.;
     }
@@ -169,6 +186,10 @@ void fmat_vecmul(const fmat_t *s, const fvec_t *scale, fvec_t *output) {
           * s->data[k][j];
     }
   }
+#elif defined(HAVE_BLAS)
+  for (k = 0; k < s->height; k++) {
+    output->data[k] = aubio_cblas_dot( s->length, scale->data, 1, s->data[k], 1);
+  }
 #elif defined(HAVE_ACCELERATE)
 #if 0
   // seems slower and less precise (and dangerous?)
@@ -178,9 +199,5 @@ void fmat_vecmul(const fmat_t *s, const fvec_t *scale, fvec_t *output) {
     aubio_vDSP_dotpr( scale->data, 1, s->data[k], 1, &(output->data[k]), s->length);
   }
 #endif
-#elif defined(HAVE_BLAS)
-  for (k = 0; k < s->height; k++) {
-    output->data[k] = aubio_cblas_dot( s->length, scale->data, 1, s->data[k], 1);
-  }
 #endif
 }
