@@ -41,6 +41,8 @@
 #include <stdlib.h>
 #endif
 
+#include <stddef.h>
+
 #ifdef HAVE_STDIO_H
 #include <stdio.h>
 #endif

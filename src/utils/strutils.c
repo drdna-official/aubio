@@ -21,7 +21,7 @@
 #define _GNU_SOURCE
 #include "aubio_priv.h"
 
-#ifdef HAVE_WIN_HACKS
+#ifndef HAVE_WIN_HACKS
 #include <strings.h>
 #endif
 
